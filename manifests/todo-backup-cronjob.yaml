@@ -37,13 +37,14 @@ spec:
               - /bin/bash
               - -c
               - |
+                apt-get update && apt-get install -y postgresql-client
                 export GOOGLE_APPLICATION_CREDENTIALS="/secrets/key.json"
                 BACKUP_FILE="backup-$(date +%F).sql"
                 echo "Starting pg_dump..."
                 pg_dump -h $PGHOST -U $PGUSER $PGDATABASE > $BACKUP_FILE
                 echo "Authenticating to GCP..."
                 gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
-                echo "Uploading backup to bucket..."
+                echo "Uploading backup..."
                 gsutil cp $BACKUP_FILE gs://$BUCKET_NAME/
           restartPolicy: OnFailure
           volumes:
