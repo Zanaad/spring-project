@@ -79,6 +79,8 @@ spec:
               cpu: 200m
               memory: 512Mi
             limits:
+              cpu: 400m
+              memory: 1Gi
               ephemeral-storage: 1Gi
   volumeClaimTemplates:
     - metadata:
@@ -127,6 +129,8 @@ spec:
               cpu: 200m
               memory: 512Mi
             limits:
+              cpu: 500m
+              memory: 768Mi
               ephemeral-storage: 1Gi
 ---
 # Service: Todo Backend
