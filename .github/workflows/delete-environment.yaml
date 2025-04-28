@@ -1,0 +1,44 @@
+name: Delete Environment on Branch Deletion
+
+on:
+  delete:
+    branches:
+      - '**'
+
+env:
+  PROJECT_ID: ${{ secrets.GKE_PROJECT }}
+  GKE_CLUSTER: dwk-cluster
+  GKE_LOCATION: europe-west3
+
+jobs:
+  delete-environment:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: '${{ secrets.GKE_SA_KEY }}'
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Get GKE credentials
+        uses: google-github-actions/get-gke-credentials@v2
+        with:
+          cluster_name: '${{ env.GKE_CLUSTER }}'
+          location: '${{ env.GKE_LOCATION }}'
+          project_id: '${{ env.PROJECT_ID }}'
+
+      - name: Delete Kubernetes Namespace
+        run: |
+          BRANCH=${{ github.event.ref }}
+          BRANCH_NAME=$(basename "$BRANCH")
+
+          if [[ "$BRANCH_NAME" == "master" ]]; then
+            echo "Skipping deletion for master branch."
+            exit 0
+          fi
+
+          echo "Deleting namespace: $BRANCH_NAME"
+          kubectl delete namespace "$BRANCH_NAME" || echo "Namespace $BRANCH_NAME does not exist, skipping."

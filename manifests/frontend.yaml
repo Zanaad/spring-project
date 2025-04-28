@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todo-app
+  namespace: todo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: todo-app
+  template:
+    metadata:
+      labels:
+        app: todo-app
+    spec:
+      volumes:
+        - name: todo-app-volume
+          persistentVolumeClaim:
+            claimName: shared-pvc
+      containers:
+        - name: todo-app
+          image: zanaad/todo-app
+          volumeMounts:
+            - mountPath: /shared
+              name: todo-app-volume
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: todo-app-svc
+  namespace: todo
+spec:
+  type: ClusterIP
+  selector:
+    app: todo-app
+  ports:
+    - port: 3000
+      protocol: TCP
+      targetPort: 3000
+---
