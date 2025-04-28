@@ -25,11 +25,11 @@ spec:
               name: todo-app-volume
           resources:
             requests:
-              cpu: 100m
-              memory: 128Mi
+              memory: "256Mi"
+              cpu: "200m"
             limits:
-              cpu: 200m
-              memory: 256Mi
+              memory: "512Mi"
+              cpu: "400m"
 ---
 apiVersion: v1
 kind: Service
