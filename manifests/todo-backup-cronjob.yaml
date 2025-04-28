@@ -1,7 +1,8 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: db-backup
+  name: todo-db-backup
+  namespace: todo
 spec:
   schedule: "0 0 * * *" # Every day at midnight
   jobTemplate:
@@ -14,17 +15,20 @@ spec:
             env:
               - name: PGHOST
                 value: "postgres-svc.todo.svc.cluster.local"
-
               - name: PGDATABASE
                 value: "tododb"
-
               - name: PGUSER
-                value: "todouser"
-
+                valueFrom:
+                  secretKeyRef:
+                    name: postgres-secret
+                    key: POSTGRES_USER
               - name: PGPASSWORD
-                value: "todopassword"
+                valueFrom:
+                  secretKeyRef:
+                    name: postgres-secret
+                    key: POSTGRES_PASSWORD
               - name: BUCKET_NAME
-                value: "zana-db-backups-2025"
+                value: "zana-db-backups-2025" # change if your bucket has another name
             volumeMounts:
               - name: gcp-key
                 mountPath: /secrets
@@ -39,7 +43,7 @@ spec:
                 pg_dump -h $PGHOST -U $PGUSER $PGDATABASE > $BACKUP_FILE
                 echo "Authenticating to GCP..."
                 gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
-                echo "Uploading backup..."
+                echo "Uploading backup to bucket..."
                 gsutil cp $BACKUP_FILE gs://$BUCKET_NAME/
           restartPolicy: OnFailure
           volumes:
