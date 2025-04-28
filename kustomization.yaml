@@ -5,7 +5,6 @@ resources:
   - manifests/backend.yaml
   - manifests/ingress.yaml
   - manifests/volumes.yaml
-  - manifests/cronjob-backup.yaml
 images:
   - name: zanaad/todo-app
     newName: gcr.io/dwk-gke-457320/todo-app
