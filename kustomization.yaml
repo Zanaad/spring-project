@@ -5,6 +5,7 @@ resources:
   - manifests/backend.yaml
   - manifests/ingress.yaml
   - manifests/volumes.yaml
+  # - manifests/postgres.yaml
   - manifests/todo-backup-cronjob.yaml
 images:
   - name: zanaad/todo-app
