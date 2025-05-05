@@ -6,6 +6,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.http.HttpStatus;
 
 import java.util.List;
 
@@ -54,8 +58,22 @@ class TodoController {
 
 @RestController
 class HealthController {
-    @GetMapping("/")
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    @GetMapping("/healthz")
     public ResponseEntity<String> healthCheck() {
+        try {
+            jdbcTemplate.queryForObject("SELECT 1", Integer.class);
+            return ResponseEntity.ok("OK - DB reachable");
+        } catch (DataAccessException e) {
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("Database not reachable");
+        }
+    }
+
+    @GetMapping("/")
+    public ResponseEntity<String> root() {
         return ResponseEntity.ok("Todo-App is up and running!");
     }
 }
